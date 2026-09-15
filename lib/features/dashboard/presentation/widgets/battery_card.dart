@@ -33,7 +33,7 @@ class BatteryCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.bolt,
                     size: 16,
                     color: DashboardColors.textSecondary,

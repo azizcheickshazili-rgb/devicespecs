@@ -42,7 +42,7 @@ class DeviceSummaryCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.smartphone,
                       size: 17,
                       color: DashboardColors.textSecondary,

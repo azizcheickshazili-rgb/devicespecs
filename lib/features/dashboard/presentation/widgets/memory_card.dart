@@ -44,7 +44,7 @@ class MemoryCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.memory,
                     size: 16,
                     color: DashboardColors.textSecondary,

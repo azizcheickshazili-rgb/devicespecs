@@ -170,7 +170,7 @@ class _SparklinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (values.length < 2) return;
-    final maxVal = 100.0;
+    const maxVal = 100.0;
     final stepX = size.width / (values.length - 1);
 
     final points = List.generate(values.length, (i) {
