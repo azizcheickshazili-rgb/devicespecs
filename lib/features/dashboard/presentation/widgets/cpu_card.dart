@@ -132,7 +132,7 @@ class _FrequencyGrid extends StatelessWidget {
             margin: EdgeInsets.only(left: i == 0 ? 0 : 8),
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
-              color: DashboardColors.chipBackground.withValues(alpha: 0.5),
+              color: DashboardColors.chipBackground.withOpacity(0.5),
               borderRadius: BorderRadius.circular(6),
               border: Border.all(color: DashboardColors.border),
             ),
@@ -194,8 +194,8 @@ class _SparklinePainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          Colors.white.withValues(alpha: 0.12),
-          Colors.white.withValues(alpha: 0.0),
+          Colors.white.withOpacity(0.12),
+          Colors.white.withOpacity(0.0),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     canvas.drawPath(fillPath, fillPaint);

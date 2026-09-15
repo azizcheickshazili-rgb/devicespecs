@@ -20,7 +20,7 @@ class DashboardBottomNav extends StatelessWidget {
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
-        color: DashboardColors.background.withValues(alpha: 0.95),
+        color: DashboardColors.background.withOpacity(0.95),
         border: const Border(
           top: BorderSide(color: DashboardColors.border),
         ),

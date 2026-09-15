@@ -22,8 +22,11 @@ class DashboardColors {
 class DashboardText {
   DashboardText._();
 
+  // NOTE : la maquette utilise la police "Geist", indisponible dans la
+  // version de google_fonts résolue par la CI du groupe. "Inter" est une
+  // police géométrique très proche visuellement, disponible partout.
   static TextStyle headlineMd({Color color = DashboardColors.textPrimary}) =>
-      GoogleFonts.geist(
+      GoogleFonts.inter(
         fontSize: 16,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.01,
@@ -31,7 +34,7 @@ class DashboardText {
       );
 
   static TextStyle body({Color color = DashboardColors.textMuted}) =>
-      GoogleFonts.geist(fontSize: 11, color: color);
+      GoogleFonts.inter(fontSize: 11, color: color);
 
   static TextStyle labelDataSm({Color color = DashboardColors.textMuted}) =>
       GoogleFonts.jetBrainsMono(

@@ -135,7 +135,7 @@ class _NetworkStat extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: DashboardColors.chipBackground.withValues(alpha: 0.5),
+        color: DashboardColors.chipBackground.withOpacity(0.5),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: DashboardColors.border),
       ),

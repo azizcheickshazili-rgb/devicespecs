@@ -213,7 +213,7 @@ class _DashboardHeader extends StatelessWidget {
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: DashboardColors.background.withValues(alpha: 0.9),
+        color: DashboardColors.background.withOpacity(0.9),
         border: const Border(
           bottom: BorderSide(color: DashboardColors.border),
         ),
