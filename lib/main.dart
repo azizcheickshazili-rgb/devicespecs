@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'features/dashboard/presentation/pages/dashboard_page.dart';
 
 void main() {
   runApp(const DeviceSpecsApp());
@@ -19,7 +20,7 @@ class DeviceSpecsApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF121212),
         fontFamily: 'Roboto',
       ),
-      home: const HomeScreen(),
+      home: const DashboardPage(),
     );
   }
 }
