@@ -223,7 +223,7 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: widget.onLogout,
+                  onPressed: _handleLogout,
                   icon: const Icon(Icons.logout, color: Color(0xFFFFB4AB)),
                   label: const Text(
                     'Se déconnecter du profil',
