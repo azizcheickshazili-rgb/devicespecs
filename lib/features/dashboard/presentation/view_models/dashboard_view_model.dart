@@ -2,30 +2,19 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../../../../services/native/battery_platform_service.dart';
-import '../../../../services/native/device_platform_service.dart';
-import '../../../../services/native/storage_platform_service.dart';
-import '../../../../services/native/system_platform_service.dart';
+import '../../../../services/native/system_native_service.dart';
 
 /// État exposé par le Dashboard à la vue.
 ///
 /// Basé sur [ChangeNotifier] (pas de dépendance externe de state
-/// management) : la page l'écoute via [ListenableBuilder].
+/// management) : la page l'écoute via [ListenableBuilder]. Toutes les
+/// données proviennent d'un seul appel natif getDeviceInfo() (+ un appel
+/// séparé pour le réseau, et un polling léger pour la charge CPU).
 class DashboardViewModel extends ChangeNotifier {
-  DashboardViewModel({
-    DevicePlatformService? deviceService,
-    BatteryPlatformService? batteryService,
-    StoragePlatformService? storageService,
-    SystemPlatformService? systemService,
-  }) : _deviceService = deviceService ?? DevicePlatformService(),
-       _batteryService = batteryService ?? BatteryPlatformService(),
-       _storageService = storageService ?? StoragePlatformService(),
-       _systemService = systemService ?? SystemPlatformService();
+  DashboardViewModel({SystemNativeService? nativeService})
+    : _nativeService = nativeService ?? SystemNativeService();
 
-  final DevicePlatformService _deviceService;
-  final BatteryPlatformService _batteryService;
-  final StoragePlatformService _storageService;
-  final SystemPlatformService _systemService;
+  final SystemNativeService _nativeService;
 
   static const int _maxCpuSamples = 14;
 
@@ -50,22 +39,13 @@ class DashboardViewModel extends ChangeNotifier {
 
     try {
       final results = await Future.wait([
-        _deviceService.getDeviceInfo(),
-        _batteryService.getBatteryInfo(),
-        _systemService.getMemoryInfo(),
-        _storageService.getStorageInfo(),
-        _systemService.getCpuInfo(),
-        _systemService.getNetworkInfo(),
+        _nativeService.getDeviceInfo(),
+        _nativeService.getNetworkInfo(),
       ]);
 
-      deviceInfo = results[0];
-      batteryInfo = results[1];
-      memoryInfo = results[2];
-      storageInfo = results[3];
-      cpuInfo = results[4];
-      networkInfo = results[5];
+      _applyDeviceInfo(results[0]);
+      networkInfo = results[1];
 
-      _pushCpuSample(cpuInfo['loadPercent'] as double? ?? -1);
       _startTelemetry();
     } catch (e) {
       errorMessage = 'Impossible de récupérer les informations système.';
@@ -75,14 +55,68 @@ class DashboardViewModel extends ChangeNotifier {
     }
   }
 
+  /// Répartit le Map plat renvoyé par le natif dans des sous-Maps par
+  /// domaine (repris tels quels par les cartes existantes du Dashboard).
+  void _applyDeviceInfo(Map<String, dynamic> raw) {
+    deviceInfo = {
+      'manufacturer': raw['manufacturer'] ?? 'Indisponible',
+      'model': raw['model'] ?? 'Indisponible',
+      'deviceCodeName': raw['deviceCodeName'] ?? 'Indisponible',
+      'osVersion': raw['androidVersion'] ?? 'Indisponible',
+      'buildId': raw['buildId'] ?? 'Indisponible',
+    };
+
+    batteryInfo = {
+      'level': (raw['batteryPercent'] as num?)?.toInt() ?? -1,
+      'isCharging': raw['isCharging'] ?? false,
+      'chargeState': raw['chargeState'] ?? 'Indisponible',
+      'cellHealth': raw['cellHealth'] ?? 'Indisponible',
+      'temperatureCelsius':
+          (raw['temperatureCelsius'] as num?)?.toDouble() ?? -1.0,
+    };
+
+    const mb = 1024 * 1024;
+    final totalRamMb = (raw['totalRam'] as num?)?.toInt() ?? 0;
+    final usedRamMb = (raw['usedRam'] as num?)?.toInt() ?? 0;
+    final availableRamMb = (raw['availableRam'] as num?)?.toInt() ?? 0;
+    final swapTotalMb = (raw['swapTotal'] as num?)?.toInt() ?? -1;
+    final swapUsedMb = (raw['swapUsed'] as num?)?.toInt() ?? -1;
+    memoryInfo = {
+      'totalRamBytes': totalRamMb * mb,
+      'usedRamBytes': usedRamMb * mb,
+      'availableRamBytes': availableRamMb * mb,
+      'swapTotalBytes': swapTotalMb >= 0 ? swapTotalMb * mb : -1,
+      'swapUsedBytes': swapUsedMb >= 0 ? swapUsedMb * mb : -1,
+    };
+
+    final totalStorageMb = (raw['totalStorage'] as num?)?.toInt() ?? 0;
+    final availableStorageMb = (raw['availableStorage'] as num?)?.toInt() ?? 0;
+    storageInfo = {
+      'totalBytes': totalStorageMb * mb,
+      'freeBytes': availableStorageMb * mb,
+      'usedBytes': (totalStorageMb - availableStorageMb) * mb,
+    };
+
+    cpuInfo = {
+      'cores': (raw['cpuCores'] as num?)?.toInt() ?? 0,
+      'architecture': raw['cpuArchitecture'] ?? 'Indisponible',
+      'loadPercent': cpuInfo['loadPercent'] ?? -1.0,
+      'clusterFrequenciesGHz':
+          (raw['cpuFrequenciesGHz'] as List?)
+              ?.map((e) => (e as num).toDouble())
+              .toList() ??
+          <double>[],
+    };
+  }
+
   /// Rafraîchit périodiquement uniquement la charge CPU pour alimenter la
   /// sparkline "TÉLÉMÉTRIE EN DIRECT (1s)", sans recharger toute la page.
   void _startTelemetry() {
     _telemetryTimer?.cancel();
     _telemetryTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
-      final latest = await _systemService.getCpuInfo();
-      cpuInfo = latest;
-      _pushCpuSample(latest['loadPercent'] as double? ?? -1);
+      final load = await _nativeService.getCpuLoad();
+      cpuInfo = {...cpuInfo, 'loadPercent': load};
+      _pushCpuSample(load);
       notifyListeners();
     });
   }

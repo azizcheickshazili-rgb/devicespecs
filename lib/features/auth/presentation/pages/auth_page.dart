@@ -492,9 +492,8 @@ class _AuthPageState extends State<AuthPage> {
                 style: AuthText.bodySm(
                   color: AuthColors.primary,
                 ).copyWith(decoration: TextDecoration.underline),
-                recognizer: TapGestureRecognizer(
-                  onTap: () => setState(() => _isLogin = !_isLogin),
-                ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () => setState(() => _isLogin = !_isLogin),
               ),
             ],
           ),
