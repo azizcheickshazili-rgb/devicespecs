@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../profile/presentation/pages/profile_page.dart';
+import '../../../specs/presentation/pages/specs_page.dart';
 import '../theme/dashboard_colors.dart';
 import '../view_models/dashboard_view_model.dart';
 import '../widgets/battery_card.dart';
@@ -87,6 +89,26 @@ class _DashboardPageState extends State<DashboardPage>
     if (mounted) _entranceController.forward();
   }
 
+  void _goToSpecs() {
+    if (widget.onViewSystemInfo != null) {
+      widget.onViewSystemInfo!();
+      return;
+    }
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const SpecsPage()));
+  }
+
+  void _goToProfile() {
+    if (widget.onOpenProfile != null) {
+      widget.onOpenProfile!();
+      return;
+    }
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const ProfilePage()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,7 +116,10 @@ class _DashboardPageState extends State<DashboardPage>
       body: SafeArea(
         child: Column(
           children: [
-            _DashboardHeader(profileImageUrl: widget.profileImageUrl),
+            _DashboardHeader(
+              profileImageUrl: widget.profileImageUrl,
+              onAvatarTap: _goToProfile,
+            ),
             Expanded(
               child: ListenableBuilder(
                 listenable: _viewModel,
@@ -191,10 +216,7 @@ class _DashboardPageState extends State<DashboardPage>
                 },
               ),
             ),
-            DashboardBottomNav(
-              onSpecsTap: widget.onViewSystemInfo,
-              onProfileTap: widget.onOpenProfile,
-            ),
+            DashboardBottomNav(onSpecsTap: _goToSpecs, onProfileTap: _goToProfile),
           ],
         ),
       ),
@@ -203,9 +225,10 @@ class _DashboardPageState extends State<DashboardPage>
 }
 
 class _DashboardHeader extends StatelessWidget {
-  const _DashboardHeader({this.profileImageUrl});
+  const _DashboardHeader({this.profileImageUrl, this.onAvatarTap});
 
   final String? profileImageUrl;
+  final VoidCallback? onAvatarTap;
 
   @override
   Widget build(BuildContext context) {
@@ -237,24 +260,27 @@ class _DashboardHeader extends StatelessWidget {
               ),
             ],
           ),
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: DashboardColors.border),
-            ),
-            child: ClipOval(
-              child: profileImageUrl != null
-                  ? Image.network(profileImageUrl!, fit: BoxFit.cover)
-                  : Container(
-                      color: DashboardColors.chipBackground,
-                      child: const Icon(
-                        Icons.person,
-                        size: 18,
-                        color: Colors.white,
+          GestureDetector(
+            onTap: onAvatarTap,
+            child: Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: DashboardColors.border),
+              ),
+              child: ClipOval(
+                child: profileImageUrl != null
+                    ? Image.network(profileImageUrl!, fit: BoxFit.cover)
+                    : Container(
+                        color: DashboardColors.chipBackground,
+                        child: const Icon(
+                          Icons.person,
+                          size: 18,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
+              ),
             ),
           ),
         ],

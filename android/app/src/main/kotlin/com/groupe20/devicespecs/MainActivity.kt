@@ -4,6 +4,8 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import android.os.Build
@@ -40,6 +42,13 @@ class MainActivity : FlutterActivity() {
                 "getCpuLoad" -> {
                     try {
                         result.success(readCpuLoadPercent())
+                    } catch (e: Exception) {
+                        result.error("NATIVE_ERROR", e.message, null)
+                    }
+                }
+                "getSensorsList" -> {
+                    try {
+                        result.success(getSensorsList())
                     } catch (e: Exception) {
                         result.error("NATIVE_ERROR", e.message, null)
                     }
@@ -137,6 +146,19 @@ class MainActivity : FlutterActivity() {
         info["cpuFrequenciesGHz"] = readClusterFrequenciesGHz()
 
         return info
+    }
+
+    /** Liste réelle des capteurs matériels détectés (SensorManager), triée. */
+    private fun getSensorsList(): List<String> {
+        return try {
+            val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            sensorManager.getSensorList(Sensor.TYPE_ALL)
+                .map { it.name }
+                .distinct()
+                .sorted()
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     /** Lit /proc/stat et calcule le delta d'activité CPU depuis le dernier appel. */

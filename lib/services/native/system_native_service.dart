@@ -53,6 +53,21 @@ class SystemNativeService {
     }
   }
 
+  /// Liste réelle des capteurs matériels détectés sur l'appareil (via
+  /// SensorManager côté Kotlin). Liste vide si indisponible.
+  Future<List<String>> getSensorsList() async {
+    try {
+      final result = await _channel.invokeMethod<List<dynamic>>(
+        'getSensorsList',
+      );
+      return result?.map((e) => e.toString()).toList() ?? [];
+    } on PlatformException {
+      return [];
+    } on MissingPluginException {
+      return [];
+    }
+  }
+
   Map<String, dynamic> _unavailableNetworkInfo() => {
     'ssid': 'Indisponible',
     'isConnected': false,

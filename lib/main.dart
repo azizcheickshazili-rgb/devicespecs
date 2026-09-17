@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
+import 'features/auth/presentation/pages/auth_page.dart';
 
 void main() {
   runApp(const DeviceSpecsApp());
@@ -20,7 +21,7 @@ class DeviceSpecsApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF121212),
         fontFamily: 'Roboto',
       ),
-      home: const DashboardPage(),
+      home: const AuthPage(),
     );
   }
 }
